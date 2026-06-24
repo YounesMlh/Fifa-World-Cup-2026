@@ -36,7 +36,7 @@ Group stage,Thu,2026-06-18,12:00 (22:00),4,1,,,2026,Switzerland,Bosnia-Herzegovi
 Group stage,Thu,2026-06-18,15:00 (01:00),6,0,,,2026,Canada,Qatar
 Group stage,Thu,2026-06-18,19:00 (04:00),1,0,,,2026,Mexico,Korea Republic
 Group stage,Fri,2026-06-19,12:00 (22:00),2,0,,,2026,United States,Australia
-Group stage,Fri,2026-06-19,18:00 (01:00),1,0,,,2026,Scotland,Morocco
+Group stage,Fri,2026-06-19,18:00 (01:00),0,1,,,2026,Scotland,Morocco
 Group stage,Fri,2026-06-19,20:00 (06:00),0,1,,,2026,Türkiye,Paraguay
 Group stage,Fri,2026-06-19,20:30 (03:30),3,0,,,2026,Brazil,Haiti
 Group stage,Sat,2026-06-20,12:00 (20:00),5,1,,,2026,Netherlands,Sweden
