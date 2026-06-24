@@ -128,22 +128,89 @@ if selected_team:
     col3.metric(label="Goals For (GF)", value=int(team_stats["GF"]))
     col4.metric(label="Goals Against (GA)", value=int(team_stats["GA"]))
 
-arab_teams = ['Algeria', 'Morocco', 'Saudi Arabia', 'Egypt', 'Tunisia', 'Qatar', 'Jordan', 'Iraq']
-arab_standings = standings[standings['Team'].isin(arab_teams)].sort_values(by='PTS', ascending=False)
-print(arab_standings)
+st.divider()
+
+# --- NEW SECTION: CUSTOM ANALYTICAL VIEWS ---
+st.header("📋 Advanced Tournament Leaderboards")
+st.markdown("Use the selector below to filter and analyze unified standings across different categories.")
+
+# Create a selection menu for the user
+view_option = st.selectbox(
+    "Select a view:",
+    [
+        "📊 Overall Standings (All 48 Teams)",
+        "⭐ Arab Nations Standings",
+        "🕒 3rd-Place Teams Tracker (Top 8 Qualify)"
+    ]
+)
+
+# ----------------- VIEW 1: OVERALL STANDINGS -----------------
+if view_option == "📊 Overall Standings (All 48 Teams)":
+    st.subheader("🌍 Universal Leaderboard")
+    
+    overall_df = standings.sort_values(by=['PTS', 'GD', 'GF'], ascending=[False, False, False]).reset_index(drop=True)
+    overall_df.index = overall_df.index + 1
+    overall_df.index.name = "Rank"
+    
+    st.dataframe(overall_df[['Team', 'PTS', 'GD', 'GF', 'GA']], use_container_width=True)
+
+# ----------------- VIEW 2: ARAB NATIONS STANDINGS -----------------
+elif view_option == "⭐ Arab Nations Standings":
+    st.subheader("🇲🇦 🇩🇿 划🇸🇦 Regional Leaderboard: Arab Nations")
+    
+    arab_teams_list = ['Algeria', 'Morocco', 'Saudi Arabia', 'Egypt', 'Tunisia', 'Qatar', 'Jordan', 'Iraq']
+    arab_df = standings[standings['Team'].isin(arab_teams_list)].copy()
+    
+    if not arab_df.empty:
+        arab_df = arab_df.sort_values(by=['PTS', 'GD', 'GF'], ascending=[False, False, False]).reset_index(drop=True)
+        arab_df.index = arab_df.index + 1
+        arab_df.index.name = "Rank"
+        st.dataframe(arab_df[['Team', 'PTS', 'GD', 'GF', 'GA']], use_container_width=True)
+    else:
+        st.info("No stats available for Arab nations yet.")
+
+# ----------------- VIEW 3: 3RD PLACE TRACKER (TOP 8 QUALIFY) -----------------
+elif view_option == "🕒 3rd-Place Teams Tracker (Top 8 Qualify)":
+    st.subheader("🎟️ Best 3rd-Placed Teams Leaderboard")
+    st.markdown("In the 48-team format, the **top 8 best third-placed teams** advance to the Round of 32.")
+    
+    third_placed_teams = []
+    for g_name, g_teams in groups.items():
+        g_df = standings[standings['Team'].isin(g_teams)].copy()
+        g_df = g_df.sort_values(by=['PTS', 'GD', 'GF', 'GA'], ascending=[False, False, False, False]).reset_index(drop=True)
+        if len(g_df) >= 3:
+            third_placed_teams.append(g_df.iloc[2])
+            
+    if third_placed_teams:
+        third_df = pd.DataFrame(third_placed_teams).sort_values(by=['PTS', 'GD', 'GF'], ascending=[False, False, False]).reset_index(drop=True)
+        third_df.index = third_df.index + 1
+        third_df.index.name = "Rank"
+        
+        third_df['Status'] = ['✅ Qualified (Top 8)' if i <= 8 else '❌ Eliminated' for i in third_df.index]
+        
+        def highlight_qualified(row):
+            return ['background-color: #d4edda; color: #155724;' if row['Status'] == '✅ Qualified (Top 8)' else '' for _ in row]
+            
+        styled_third_df = third_df[['Team', 'PTS', 'GD', 'GF', 'GA', 'Status']].style.apply(highlight_qualified, axis=1)
+        
+        st.dataframe(styled_third_df, use_container_width=True)
+    else:
+        st.info("Group stage matches are incomplete. 3rd-place data will generate once groups populate.")
 
 st.divider()
 st.header("📊 Tournament Leaderboards")
 col_attack, col_defense = st.columns(2)
 
 with col_attack:
-    st.subheader("🔥 Top 5 Attacks (Most GF)")
+    st.subheader("🔥 Top 5 Attacks")
     top_attacks = standings.nlargest(5, 'GF')[['Team', 'GF', 'PTS']]
     top_attacks.index = range(1, 6)
     st.dataframe(top_attacks, use_container_width=True)
 
 with col_defense:
-    st.subheader("🛡️ Top 5 Defenses (Least GA)")
+    st.subheader("🛡️ Top 5 Defenses")
     top_defenses = standings.nsmallest(5, 'GA')[['Team', 'GA', 'PTS']]
     top_defenses.index = range(1, 6)
     st.dataframe(top_defenses, use_container_width=True)
+
+
