@@ -85,17 +85,17 @@ standings["GD"] = standings["GF"] - standings["GA"]
 
 groups = {
     "Group A": ["Mexico", "South Africa", "Korea Republic", "Czechia"],
-    "Group B": ["Canada", "Bosnia-Herzegovina", "United States", "Paraguay"],
-    "Group C": ["Qatar", "Switzerland", "Brazil", "Morocco"],
-    "Group D": ["Haiti", "Scotland", "Australia", "Türkiye"],
-    "Group E": ["Germany", "Curaçao", "Netherlands", "Japan"],
-    "Group F": ["Côte d'Ivoire", "Ecuador", "Sweden", "Tunisia"],
-    "Group G": ["Belgium", "Egypt", "Spain", "Cape Verde"],
-    "Group H": ["IR Iran", "New Zealand", "Saudi Arabia", "Uruguay"],
+    "Group B": ["Canada", "Bosnia-Herzegovina", "Qatar" ,  "Switzerland" ],
+    "Group C": ["Haiti", "Scotland", "Brazil", "Morocco"],
+    "Group D": ["United States" , "Paraguay", "Australia", "Türkiye"],
+    "Group E": ["Germany", "Curaçao","Côte d'Ivoire", "Ecuador" ],
+    "Group F": ["Netherlands", "Japan", "Sweden", "Tunisia"],
+    "Group G": ["Belgium", "Egypt","IR Iran", "New Zealand" ],
+    "Group H": ["Spain", "Cape Verde", "Saudi Arabia", "Uruguay"],
     "Group I": ["France", "Senegal", "Iraq", "Norway"],
     "Group J": ["Argentina", "Algeria", "Austria", "Jordan"],
-    "Group K": ["Portugal", "Congo DR", "England", "Croatia"],
-    "Group L": ["Ghana", "Panama", "Uzbekistan", "Colombia"],
+    "Group K": ["Portugal", "Congo DR", "Uzbekistan", "Colombia"],
+    "Group L": ["England", "Croatia","Ghana", "Panama"],
 }
 
 
