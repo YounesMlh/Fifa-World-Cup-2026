@@ -127,3 +127,23 @@ if selected_team:
     col2.metric(label="Goal Difference (GD)", value=int(team_stats["GD"]))
     col3.metric(label="Goals For (GF)", value=int(team_stats["GF"]))
     col4.metric(label="Goals Against (GA)", value=int(team_stats["GA"]))
+
+arab_teams = ['Algeria', 'Morocco', 'Saudi Arabia', 'Egypt', 'Tunisia', 'Qatar', 'Jordan', 'Iraq']
+arab_standings = standings[standings['Team'].isin(arab_teams)].sort_values(by='PTS', ascending=False)
+print(arab_standings)
+
+st.divider()
+st.header("📊 Tournament Leaderboards")
+col_attack, col_defense = st.columns(2)
+
+with col_attack:
+    st.subheader("🔥 Top 5 Attacks (Most GF)")
+    top_attacks = standings.nlargest(5, 'GF')[['Team', 'GF', 'PTS']]
+    top_attacks.index = range(1, 6)
+    st.dataframe(top_attacks, use_container_width=True)
+
+with col_defense:
+    st.subheader("🛡️ Top 5 Defenses (Least GA)")
+    top_defenses = standings.nsmallest(5, 'GA')[['Team', 'GA', 'PTS']]
+    top_defenses.index = range(1, 6)
+    st.dataframe(top_defenses, use_container_width=True)
