@@ -156,7 +156,7 @@ if view_option == "📊 Overall Standings (All 48 Teams)":
 
 # ----------------- VIEW 2: ARAB NATIONS STANDINGS -----------------
 elif view_option == "⭐ Arab Nations Standings":
-    st.subheader("🇲🇦 🇩🇿 划🇸🇦 Regional Leaderboard: Arab Nations")
+    st.subheader("Regional Leaderboard: Arab Nations")
     
     arab_teams_list = ['Algeria', 'Morocco', 'Saudi Arabia', 'Egypt', 'Tunisia', 'Qatar', 'Jordan', 'Iraq']
     arab_df = standings[standings['Team'].isin(arab_teams_list)].copy()
