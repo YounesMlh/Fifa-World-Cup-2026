@@ -8,7 +8,7 @@ st.markdown("Welcome to your interactive World Cup standings dashboard! This app
 
 # --- CONNECT TO YOUR LIVE RENDER API ---
 # Replace this string with your exact live Render URL
-API_URL = "https://worldcup-2026-api-xxxx.onrender.com/matches"
+API_URL = "https://worldcup-2026-api-zmw8.onrender.com/matches"
 
 @st.cache_data(ttl=300)  # Caches the data for 5 minutes to keep the app fast
 def load_live_data():
@@ -27,44 +27,56 @@ if not live_matches:
     st.stop()
 
 # --- PROCESS LIVE DATA INTO STANDINGS ---
-teams = {}
+# 1. Initialize ALL 48 teams with 0 stats so they always appear in their groups
+all_known_teams = [
+    "Mexico", "South Africa", "Korea Republic", "Czechia",
+    "Canada", "Bosnia-Herzegovina", "Qatar", "Switzerland",
+    "Haiti", "Scotland", "Brazil", "Morocco",
+    "United States", "Paraguay", "Australia", "Türkiye",
+    "Germany", "Curaçao", "Côte d'Ivoire", "Ecuador",
+    "Netherlands", "Japan", "Sweden", "Tunisia",
+    "Belgium", "Egypt", "IR Iran", "New Zealand",
+    "Spain", "Cape Verde", "Saudi Arabia", "Uruguay",
+    "France", "Senegal", "Iraq", "Norway",
+    "Argentina", "Algeria", "Austria", "Jordan",
+    "Portugal", "Congo DR", "Uzbekistan", "Colombia",
+    "England", "Croatia", "Ghana", "Panama"
+]
+
+teams = {t: {"PTS": 0, "GF": 0, "GA": 0} for t in all_known_teams}
+
+# 2. Update stats only for matches that have actually been played
 for match in live_matches:
     home = match["home_team"]
     away = match["away_team"]
     score_str = match["score"]
     
-    # Check if the match has been played yet (has a real score like '2–1' instead of 'v')
+    # Ensure both teams exist in our predefined world cup list to avoid scraping artifacts
+    if home not in teams or away not in teams:
+        continue
+        
     if score_str and "v" not in score_str.lower() and "–" in score_str:
         try:
-            # Splitting Wikipedia's typical dash character '–' (En-dash)
             gh, ga = map(int, score_str.split("–"))
         except ValueError:
             try:
-                # Fallback for standard keyboard hyphen '-'
                 gh, ga = map(int, score_str.split("-"))
             except ValueError:
                 continue
-    else:
-        # Skip match if it hasn't started or score format is unplayed
-        continue
-
-    # Initialize stats for teams if not present
-    for t in [home, away]:
-        if t not in teams:
-            teams[t] = {"PTS": 0, "GF": 0, "GA": 0}
-            
-    teams[home]["GF"] += gh
-    teams[home]["GA"] += ga
-    teams[away]["GF"] += ga
-    teams[away]["GA"] += gh
-    
-    if gh > ga:
-        teams[home]["PTS"] += 3
-    elif gh < ga:
-        teams[away]["PTS"] += 3
-    else:
-        teams[home]["PTS"] += 1
-        teams[away]["PTS"] += 1
+                
+        # Accumulate live stats
+        teams[home]["GF"] += gh
+        teams[home]["GA"] += ga
+        teams[away]["GF"] += ga
+        teams[away]["GA"] += gh
+        
+        if gh > ga:
+            teams[home]["PTS"] += 3
+        elif gh < ga:
+            teams[away]["PTS"] += 3
+        else:
+            teams[home]["PTS"] += 1
+            teams[away]["PTS"] += 1
 
 # If no matches have been played yet, generate empty structure using groups
 if not teams:
