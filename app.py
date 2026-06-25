@@ -26,8 +26,22 @@ if not live_matches:
     st.error("Could not fetch live data from the API. Please ensure your Render backend is running.")
     st.stop()
 
+# --- CONNECT TO YOUR LIVE RENDER API ---
+
+@st.cache_data(ttl=60)  
+def load_live_data():
+    try:
+        response = requests.get(API_URL)
+        if response.status_code == 200:
+            return response.json().get("data", [])
+        return []
+    except Exception:
+        return []
+
+live_matches = load_live_data()
+
 # --- PROCESS LIVE DATA INTO STANDINGS ---
-# 1. Initialize ALL 48 teams with 0 stats so they always appear in their groups
+
 all_known_teams = [
     "Mexico", "South Africa", "Korea Republic", "Czechia",
     "Canada", "Bosnia-Herzegovina", "Qatar", "Switzerland",
@@ -45,39 +59,47 @@ all_known_teams = [
 
 teams = {t: {"PTS": 0, "GF": 0, "GA": 0} for t in all_known_teams}
 
-# 2. Update stats only for matches that have actually been played
 for match in live_matches:
-    home = match["home_team"]
-    away = match["away_team"]
-    score_str = match["score"]
+    home = match.get("home_team", "").strip()
+    away = match.get("away_team", "").strip()
+    score_str = match.get("score", "").strip()
     
-    # Ensure both teams exist in our predefined world cup list to avoid scraping artifacts
+    if not home or not away or not score_str:
+        continue
+        
+
     if home not in teams or away not in teams:
         continue
         
-    if score_str and "v" not in score_str.lower() and "–" in score_str:
-        try:
-            gh, ga = map(int, score_str.split("–"))
-        except ValueError:
-            try:
-                gh, ga = map(int, score_str.split("-"))
-            except ValueError:
-                continue
-                
-        # Accumulate live stats
-        teams[home]["GF"] += gh
-        teams[home]["GA"] += ga
-        teams[away]["GF"] += ga
-        teams[away]["GA"] += gh
+    if "v" in score_str.lower():
+        continue
         
-        if gh > ga:
-            teams[home]["PTS"] += 3
-        elif gh < ga:
-            teams[away]["PTS"] += 3
-        else:
-            teams[home]["PTS"] += 1
-            teams[away]["PTS"] += 1
+    
+    score_str = score_str.replace("–", "-").replace("—", "-") 
+    
+    if "-" in score_str:
+        try:
+            
+            parts = score_str.split("-")
+            gh = int(parts[0].strip())
+            ga = int(parts[1].strip())
+            
+            teams[home]["GF"] += gh
+            teams[home]["GA"] += ga
+            teams[away]["GF"] += ga
+            teams[away]["GA"] += gh
+            
+            
+            if gh > ga:
+                teams[home]["PTS"] += 3
+            elif gh < ga:
+                teams[away]["PTS"] += 3
+            else:
+                teams[home]["PTS"] += 1
+                teams[away]["PTS"] += 1
+        except Exception:
 
+            continue
 # If no matches have been played yet, generate empty structure using groups
 if not teams:
     all_known_teams = ["Mexico", "South Africa", "Korea Republic", "Czechia", "Canada", "Bosnia-Herzegovina", "Qatar", "Switzerland", "Haiti", "Scotland", "Brazil", "Morocco", "United States", "Paraguay", "Australia", "Türkiye", "Germany", "Curaçao", "Côte d'Ivoire", "Ecuador", "Netherlands", "Japan", "Sweden", "Tunisia", "Belgium", "Egypt", "IR Iran", "New Zealand", "Spain", "Cape Verde", "Saudi Arabia", "Uruguay", "France", "Senegal", "Iraq", "Norway", "Argentina", "Algeria", "Austria", "Jordan", "Portugal", "Congo DR", "Uzbekistan", "Colombia", "England", "Croatia", "Ghana", "Panama"]
